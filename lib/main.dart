@@ -1,21 +1,37 @@
 import 'package:acft_app/calculator_page.dart';
 import 'package:acft_app/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+
+Future<void> main() async {
   runApp(const AcftApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+); 
+
 }
 
 class AcftApp extends StatelessWidget {
   const AcftApp({super.key});
+  
 
   @override
   Widget build(BuildContext context) {
+
+
     return MaterialApp(
       title: "ACFT APP",
       home: const HomePage(title: "ACFT HomePage!"),
     );
-  }
+
+
+  } 
+  
+
+
 }
 
 class HomePage extends StatefulWidget {
