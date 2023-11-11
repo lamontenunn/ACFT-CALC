@@ -1,37 +1,40 @@
+import 'package:acft_app/GuidePages/lane_layout.dart';
+import 'package:acft_app/GuidePages/mdl_instructions.dart';
+import 'package:acft_app/GuidePages/prepdrill_instructions.dart';
+import 'package:acft_app/GuidePages/spt_instructions.dart';
+import 'package:acft_app/GuidePages/test_Instructions.dart';
 import 'package:acft_app/calculator_page.dart';
+import 'package:acft_app/guide_page.dart';
 import 'package:acft_app/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
-
 Future<void> main() async {
   runApp(const AcftApp());
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-); 
-
+  );
 }
 
 class AcftApp extends StatelessWidget {
   const AcftApp({super.key});
-  
 
   @override
   Widget build(BuildContext context) {
-
-
     return MaterialApp(
       title: "ACFT APP",
       home: const HomePage(title: "ACFT HomePage!"),
+      routes: {
+        '/Test Instructions': (context) => TestInstructionsPage(),
+        '/Lane Layout': (context) => LaneLayoutPage(),
+        '/SPT': (context) => SPTInstructions(),
+        '/Prep Drill': (context) => PrepDrillInstructions(),
+        '/MDL': (context) => MDLInstructions(),
+        
+      },
     );
-
-
-  } 
-  
-
-
+  }
 }
 
 class HomePage extends StatefulWidget {
@@ -70,6 +73,10 @@ class _HomePageState extends State<HomePage> {
               label: 'Calculator',
             ),
             NavigationDestination(
+              icon: Icon(Icons.menu_book_rounded),
+              label: "Guide",
+            ),
+            NavigationDestination(
               icon: Icon(Icons.settings_rounded),
               label: "Settings",
             ),
@@ -77,11 +84,11 @@ class _HomePageState extends State<HomePage> {
         ),
         body: <Widget>[
           Container(
-            color: Colors.blue,
-            alignment: Alignment.center,
-            child: const Text("Page 1")
-          ),
+              color: Colors.blue,
+              alignment: Alignment.center,
+              child: const Text("Page 1")),
           CalculatorPage(),
+          GuidePage(),
           SettingsPage(),
         ][currentPage]);
   }
