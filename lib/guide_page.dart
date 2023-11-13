@@ -7,16 +7,16 @@ class GuidePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Define the icons and the routes they link to
-    final List<IconData> icons = [
-      Icons.library_books, // Test Instructions
-      Icons.map, // Lane Layout
-      Icons.fitness_center, // Prep Drill
-      Icons.account_balance_wallet, // MDL
-      Icons.directions_run, // SPT
-      Icons.touch_app, // HRP
-      Icons.timer, // SDC
-      Icons.airline_seat_legroom_reduced, // PLK
-      Icons.directions_walk, // 2MR
+    final List<String> imagePaths = [
+      'assets/icons/test_instructions.png', // Path for Test Instructions
+      'assets/icons/lane_layout.png',       // Path for Lane Layout
+      'assets/icons/prep_drill.png',        // Path for Prep Drill
+      'assets/icons/deadlift.jpg',          // Path for MDL
+      'assets/icons/powerthrow.jpg',        // Path for SPT
+      'assets/icons/pushup.jpg',            // Path for HRP
+      'assets/icons/dragcarry.jpg',         // Path for SDC
+      'assets/icons/plank.jpg',             // Path for PLK
+      'assets/icons/run.jpg',               // Path for 2MR
     ];
 
     final List<String> labels = [
@@ -31,28 +31,27 @@ class GuidePage extends StatelessWidget {
       "2MR",
     ];
 
-    return Scaffold(
-
+   return Scaffold(
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // You can adjust the number of icons per row depending on the screen size
+          crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
-        itemCount: icons.length,
+        itemCount: imagePaths.length,
         itemBuilder: (context, index) => GestureDetector(
           onTap: () {
             // Handle navigation
             Navigator.pushNamed(context, '/${labels[index]}');
           },
-          child: Card( // Wrap in a Card for a neater look
+          child: Card(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Icon(icons[index], size: 50), //Icon sizes 
-                SizedBox(height: 8), // Spaces between icon and text
+                Image.asset(imagePaths[index], width: 75, height: 75),
+                SizedBox(height: 8),
                 Text(labels[index], textAlign: TextAlign.center),
               ],
             ),
