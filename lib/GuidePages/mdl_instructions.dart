@@ -6,6 +6,7 @@ class MDLInstructions extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('MDL Instructions'),
+        backgroundColor: Colors.amber,
       ),
       body: Center(
         child: Text('Content for MDL Instructions'),

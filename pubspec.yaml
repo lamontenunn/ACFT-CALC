@@ -73,6 +73,15 @@ flutter:
     - assets/icons/pushup.png
     - assets/icons/sdc.png
     - assets/icons/age.png
+    - assets/icons/deadlift.jpg
+    - assets/icons/dragcarry.jpg
+    - assets/icons/plank.jpg
+    - assets/icons/powerthrow.jpg
+    - assets/icons/run.jpg
+    - assets/icons/pushup.jpg
+    - assets/icons/prep_drill.png
+    - assets/icons/lane_layout.png
+    
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

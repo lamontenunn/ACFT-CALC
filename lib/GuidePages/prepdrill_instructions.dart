@@ -6,6 +6,7 @@ class PrepDrillInstructions extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Prep Drill Instructions'),
+        backgroundColor: Colors.amber,
       ),
       body: Center(
         child: Text('Content for Prep Drill Instructions'),
