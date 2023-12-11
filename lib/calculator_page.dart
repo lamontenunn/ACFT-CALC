@@ -1,7 +1,6 @@
+import 'package:acft_app/GuidePages/ScoreEntry.dart';
 import 'package:acft_app/acft_calculator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For input formatters
-import 'package:http/http.dart' as http;
 
 class CalculatorPage extends StatefulWidget {
   @override
@@ -11,14 +10,14 @@ class CalculatorPage extends StatefulWidget {
 class _CalculatorPageState extends State<CalculatorPage> {
   AcftCalculator acftCalculator = AcftCalculator();
   String _selectedGender = "Male";
-  String _selectedAge = "17 - 21"; 
+  String _selectedAge = "17 - 21";
   double? _totalScore = 0;
-  List<double> _deadliftOptions = [];
-  List<double> _sptOptions = [];
-  List<double> _pushUpOptions = [];
-  List<double> _sprintDragCarryOptions = [];
-  List<double> _plankOptions = [];
-  List<double> _twoMileRunOptions = [];
+  List<String?> deadliftScores = [];
+  List<String?> sptScores = [];
+  List<String?> pushUpScores = [];
+  List<String?> sdcScores = [];
+  List<String?> plankScores = [];
+  List<String?> runScores = [];
   double _deadliftScore = 0;
   double _powerThrowScore = 0;
   double _pushUpScore = 0;
@@ -26,10 +25,14 @@ class _CalculatorPageState extends State<CalculatorPage> {
   double _plankScore = 0;
   double _twoMileRunScore = 0;
 
+  ScoreEntry scoreEntry = ScoreEntry();
+  
+
   void initState() {
-  super.initState();
-  updateDropdowns(_selectedAge, _selectedGender);
-}
+    scoreEntry.convertAllData();
+    super.initState();
+    updateDropdowns(_selectedAge, _selectedGender);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +83,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
                   updateDropdowns(_selectedAge, _selectedGender);
                 });
               },
+
               decoration: InputDecoration(
                 labelText: 'Select Age Group',
                 labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -102,15 +106,17 @@ class _CalculatorPageState extends State<CalculatorPage> {
             SizedBox(height: 20), // Spacing
 
             // Add this new section header for Event Scores
-            const Text(
-              'Event Scores',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            Center(
+              child: const Text(
+                'Enter Scores',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
 
-            SizedBox(height: 10), // Add some spacing
+            SizedBox(height: 20), // Add some spacing
 
             GridView.builder(
               shrinkWrap: true, // Prevents infinite height issue
@@ -120,28 +126,23 @@ class _CalculatorPageState extends State<CalculatorPage> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3, // Two columns
                 crossAxisSpacing: 5, // Horizontal spacing
-                mainAxisSpacing: 1, // Vertical spacing
+                mainAxisSpacing: 5, // Vertical spacing
               ),
               itemBuilder: (context, index) {
                 switch (index) {
                   case 0:
-                    return _buildEventDropdown(
-                        'Deadlift', _deadliftScore, _deadliftOptions);
+                    return _buildEventDropdown('deadlift', deadliftScores);
+
                   case 1:
-                    return _buildEventDropdown(
-                        'spt', _powerThrowScore, _sptOptions);
+                    return _buildEventDropdown('spt', sptScores);
                   case 2: // Push-up
-                    return _buildEventDropdown(
-                        'pushup', _pushUpScore, _pushUpOptions);
+                    return _buildEventDropdown('pushup', pushUpScores);
                   case 3: // Sprint-Drag-Carry
-                    return _buildEventDropdown(
-                        'sdc', _sdcScore, _sprintDragCarryOptions);
+                    return _buildEventDropdown('sdc', sdcScores);
                   case 4: // Plank
-                    return _buildEventDropdown(
-                        'plank', _plankScore, _plankOptions);
+                    return _buildEventDropdown('plank', plankScores);
                   case 5: // 2-mile run
-                    return _buildEventDropdown(
-                        'run', _twoMileRunScore, _twoMileRunOptions);
+                    return _buildEventDropdown('run', runScores);
 
                   default:
                     return Container();
@@ -181,152 +182,60 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  Widget _buildEventDropdown(
-      String label, double currentValue, List<double> options) {
-    // Create a list of dropdown menu items using the provided options
-    return DropdownButton<double>(
-      value: currentValue,
-      onChanged: (double? newValue) {
+  Widget _buildEventDropdown(String label, List<String?> options) {
+    // Filter out null values or convert them to a default string (e.g., '')
+    List<String> nonNullOptions = options.where((option) => option != null).map((option) => option ?? '').toList();
+
+    if (nonNullOptions.isEmpty) {
+      return DropdownButton<String>(
+        value: null,
+        onChanged: null,
+        items: [DropdownMenuItem(value: null, child: Text('Loading...'))],
+      );
+    }
+
+    return DropdownButton<String>(
+      value: nonNullOptions.first, // Display the first value by default
+      onChanged: (newValue) {
+        // Update the corresponding state variable here based on 'label'
         setState(() {
-          // Update the corresponding event score state based on the label
-          switch (label) {
-            case 'deadlift':
-              _deadliftScore = newValue ?? 0.0;
-              break;
-            case 'spt':
-              _powerThrowScore = newValue ?? 0.0;
-              break;
-            case 'Push-up':
-              _pushUpScore = newValue ?? 0.0;
-              break;
-            case 'sdc':
-              _sdcScore = newValue ?? 0.0;
-              break;
-            case 'plank':
-              _plankScore = newValue ?? 0.0;
-              break;
-            case 'run':
-              _twoMileRunScore = newValue ?? 0.0;
-              break;
+          if (label == 'deadlift') {
+            // Update the state variable for deadlift
           }
+          // Add similar conditions for other events
         });
       },
-      items: options.map<DropdownMenuItem<double>>((double value) {
-        return DropdownMenuItem<double>(
+      items: nonNullOptions.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
           value: value,
-          child: Text(
-              value.toStringAsFixed(2)), // You can format the string as needed
+          child: Text(value),
         );
       }).toList(),
     );
-  }
-
-
-Future<String> fetchData(String fileName) async {
-  try {
-    final data = await rootBundle.loadString('assets/textfiles/$fileName');
-    return data;
-  } catch (e) {
-    throw Exception('Error loading file: $e');
-  }
 }
 
 
-List<double> parseData(String rawData, String age, String gender) {
-  final lines = rawData.split('\n');
-  final ageColumns = getAgeColumns(age, lines[0]);
-  final genderColumn = getGenderColumn(gender, lines[1], ageColumns);
-
-  if (genderColumn == -1 || genderColumn >= lines[1].split(' ').length) {
-    // Handle invalid gender column (e.g., return an empty list or show an error)
-    return [];
-  }
-
-  return lines
-      .sublist(2) // Skip the first two lines
-      .map((line) {
-        var splitLine = line.split(' ');
-        if (splitLine.length > genderColumn) {
-          var value = splitLine[genderColumn];
-          return value != '---' ? double.tryParse(value) ?? 0.0 : 0.0;
-        }
-        return 0.0;
-      })
-      .toList();
-}
-
-
-
-List<int> getAgeColumns(String age, String firstLine) {
-  final ages = firstLine.split(' ');
-  final ageRange = age.split('-').map((a) => int.tryParse(a.trim()) ?? 0).toList();
-  List<int> columns = [];
-
-  for (int i = 0; i < ages.length; i++) {
-    var agePart = ages[i].split('-').map((a) => int.tryParse(a.trim()) ?? 0).toList();
-    
-    if (agePart.length == 2 && agePart[0] <= ageRange[1] && agePart[1] >= ageRange[0]) {
-      columns.add(i);
+  void updateDropdowns(String age, String gender) {
+    int baseIndex = scoreEntry.ageGroupToColumnIndex[age]!;
+    if (gender == 'Female') {
+      baseIndex++; // Increment index for female
     }
-  }
-
-  return columns;
-}
-
-
-int getGenderColumn(String gender, String secondLine, List<int> ageColumns) {
-  final genders = secondLine.split(' ');
-  
-  // Debugging: Print the genders list and the gender being searched
-  print("Genders list: $genders");
-  print("Searching for gender: $gender");
-
-  return ageColumns.firstWhere(
-    (column) => genders[column] == gender,
-    orElse: () => -1, // Provide a default value or handle this situation accordingly
-  );
-}
-String mapUserInputToGender(String userInput) {
-  return userInput == "Male" ? 'M' : 'F';
-}
-
-  void updateDropdowns(String age, String gender) async {
-    String fileGender = mapUserInputToGender(gender);
-    var deadliftData =
-        await fetchAndUpdateEventOptions(age, fileGender, 'deadlift.txt');
-    var sptData = await fetchAndUpdateEventOptions(age, fileGender, 'throw.txt');
-    var pushUpData =
-        await fetchAndUpdateEventOptions(age, fileGender, 'pushup.txt');
-    var sdcData = await fetchAndUpdateEventOptions(age, fileGender, 'sdc.txt');
-    var plankData = await fetchAndUpdateEventOptions(age, fileGender, 'plank.txt');
-    var runData = await fetchAndUpdateEventOptions(age, fileGender, 'run.txt');
-
+    //print(
+       // "Sample Deadlift Data: ${scoreEntry.deadliftArr.map((row) => row[baseIndex]).toList()}");
     setState(() {
-      _deadliftOptions = deadliftData;
-      _sptOptions = sptData;
-      _pushUpOptions = pushUpData;
-      _sprintDragCarryOptions = sdcData;
-      _plankOptions = plankData;
-      _twoMileRunOptions = runData;
-
-      // Optionally set the default scores to the minimum value from each event
-      _deadliftScore =
-          _deadliftOptions.isNotEmpty ? _deadliftOptions.first : 0.0;
-      _powerThrowScore = _sptOptions.isNotEmpty ? _sptOptions.first : 0.0;
-      _pushUpScore = _pushUpOptions.isNotEmpty ? _pushUpOptions.first : 0.0;
-      _sdcScore = _sprintDragCarryOptions.isNotEmpty
-          ? _sprintDragCarryOptions.first
-          : 0.0;
-      _plankScore = _plankOptions.isNotEmpty ? _plankOptions.first : 0.0;
-      _twoMileRunScore =
-          _twoMileRunOptions.isNotEmpty ? _twoMileRunOptions.first : 0.0;
+      deadliftScores =
+          scoreEntry.deadliftArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
+      sptScores =
+          scoreEntry.throwArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
+      pushUpScores =
+          scoreEntry.pushUpArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
+      sdcScores = 
+          scoreEntry.sdcArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
+      plankScores =
+          scoreEntry.plankArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
+      runScores = 
+          scoreEntry.runArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
     });
-  }
-
-  Future<List<double>> fetchAndUpdateEventOptions(
-      String age, String gender, String fileName) async {
-    final rawData = await fetchData(fileName);
-    return parseData(rawData, age, gender);
   }
 }
 

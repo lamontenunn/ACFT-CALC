@@ -1,3 +1,4 @@
+import 'package:acft_app/GuidePages/ScoreEntry.dart';
 import 'package:acft_app/GuidePages/lane_layout.dart';
 import 'package:acft_app/GuidePages/mdl_instructions.dart';
 import 'package:acft_app/GuidePages/prepdrill_instructions.dart';
@@ -12,6 +13,7 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   runApp(const AcftApp());
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -31,7 +33,6 @@ class AcftApp extends StatelessWidget {
         '/SPT': (context) => SPTInstructions(),
         '/Prep Drill': (context) => PrepDrillInstructions(),
         '/MDL': (context) => MDLInstructions(),
-        
       },
     );
   }
