@@ -18,20 +18,31 @@ class _CalculatorPageState extends State<CalculatorPage> {
   List<String?> sdcScores = [];
   List<String?> plankScores = [];
   List<String?> runScores = [];
-  double _deadliftScore = 0;
-  double _powerThrowScore = 0;
-  double _pushUpScore = 0;
-  double _sdcScore = 0;
-  double _plankScore = 0;
-  double _twoMileRunScore = 0;
+  String? deadliftScore;
+  String? powerThrowScore;
+  String? pushUpScore;
+  String? sdcScore;
+  String? plankScore;
+  String? runScore;
 
   ScoreEntry scoreEntry = ScoreEntry();
-  
 
+  @override
   void initState() {
-    scoreEntry.convertAllData();
     super.initState();
+    scoreEntry.convertAllData();
     updateDropdowns(_selectedAge, _selectedGender);
+  
+    
+    
+    String? deadliftScore = deadliftScores.isNotEmpty ? deadliftScores.first : null;
+    String? powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
+    String? pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
+    String? sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
+    String? plankScore = plankScores.isNotEmpty ? plankScores.first : null;
+    String? runScore = runScores.isNotEmpty ? runScores.first : null;
+    
+
   }
 
   @override
@@ -131,19 +142,18 @@ class _CalculatorPageState extends State<CalculatorPage> {
               itemBuilder: (context, index) {
                 switch (index) {
                   case 0:
-                    return _buildEventDropdown('deadlift', deadliftScores);
-
+                    return _buildEventDropdown(
+                      'deadlift', deadliftScores, deadliftScore);
                   case 1:
-                    return _buildEventDropdown('spt', sptScores);
+                    return _buildEventDropdown('spt', sptScores, powerThrowScore);
                   case 2: // Push-up
-                    return _buildEventDropdown('pushup', pushUpScores);
+                    return _buildEventDropdown('pushup', pushUpScores, pushUpScore);
                   case 3: // Sprint-Drag-Carry
-                    return _buildEventDropdown('sdc', sdcScores);
+                    return _buildEventDropdown('sdc', sdcScores, sdcScore);
                   case 4: // Plank
-                    return _buildEventDropdown('plank', plankScores);
+                    return _buildEventDropdown('plank', plankScores, plankScore);
                   case 5: // 2-mile run
-                    return _buildEventDropdown('run', runScores);
-
+                    return _buildEventDropdown('run', runScores, runScore);
                   default:
                     return Container();
                 }
@@ -156,12 +166,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
               onPressed: () {
                 setState(() {
                   // Assuming each score variable holds the score for the respective event
-                  _totalScore = _deadliftScore +
-                      _powerThrowScore +
-                      _pushUpScore +
-                      _sdcScore +
-                      _plankScore +
-                      _twoMileRunScore;
+                  _totalScore = 0;
                 });
               },
               child: Text('Calculate'),
@@ -182,28 +187,39 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  Widget _buildEventDropdown(String label, List<String?> options) {
-    // Filter out null values or convert them to a default string (e.g., '')
-    List<String> nonNullOptions = options.where((option) => option != null).map((option) => option ?? '').toList();
+  Widget _buildEventDropdown(String label, List<String?> options, String? selectedValue) {
+        // Filter out null values or convert them to a default string (e.g., '')
+    List<String> nonNullOptions = options
+        .where((option) => option != null)
+        .map((option) => option ?? '')
+        .toList();
 
-    if (nonNullOptions.isEmpty) {
-      return DropdownButton<String>(
-        value: null,
-        onChanged: null,
-        items: [DropdownMenuItem(value: null, child: Text('Loading...'))],
-      );
-    }
-
-    return DropdownButton<String>(
-      value: nonNullOptions.first, // Display the first value by default
-      onChanged: (newValue) {
-        // Update the corresponding state variable here based on 'label'
-        setState(() {
-          if (label == 'deadlift') {
-            // Update the state variable for deadlift
-          }
-          // Add similar conditions for other events
-        });
+     return DropdownButton<String>(
+    value: selectedValue, // Use the state variable here
+    onChanged: (newValue) {
+      setState(() {
+        switch (label) {
+          case 'deadlift':
+            deadliftScore = newValue! ;
+            break;
+          case 'spt':
+            powerThrowScore = newValue!;
+            break;
+          case 'pushup':
+            pushUpScore = newValue!;
+            break;
+          case 'sdc':
+            sdcScore = newValue!;
+            break;
+          case 'plank':
+            plankScore = newValue!;
+            break;
+          case 'run':
+            runScore = newValue!;
+            break;
+          
+        }
+      });
       },
       items: nonNullOptions.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
@@ -212,8 +228,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
         );
       }).toList(),
     );
-}
-
+  }
 
   void updateDropdowns(String age, String gender) {
     int baseIndex = scoreEntry.ageGroupToColumnIndex[age]!;
@@ -221,22 +236,47 @@ class _CalculatorPageState extends State<CalculatorPage> {
       baseIndex++; // Increment index for female
     }
     //print(
-       // "Sample Deadlift Data: ${scoreEntry.deadliftArr.map((row) => row[baseIndex]).toList()}");
+    // "Sample Deadlift Data: ${scoreEntry.deadliftArr.map((row) => row[baseIndex]).toList()}");
     setState(() {
-      deadliftScores =
-          scoreEntry.deadliftArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
-      sptScores =
-          scoreEntry.throwArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
-      pushUpScores =
-          scoreEntry.pushUpArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
-      sdcScores = 
-          scoreEntry.sdcArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
-      plankScores =
-          scoreEntry.plankArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
-      runScores = 
-          scoreEntry.runArr.map((row) => row[baseIndex]).where((value) => value != null).toList();
-    });
+      deadliftScores = scoreEntry.deadliftArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      sptScores = scoreEntry.throwArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      pushUpScores = scoreEntry.pushUpArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      sdcScores = scoreEntry.sdcArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      plankScores = scoreEntry.plankArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      runScores = scoreEntry.runArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+
+     deadliftScore = deadliftScores.isNotEmpty ? deadliftScores.first : null;
+     powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
+     pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
+     sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
+     plankScore = plankScores.isNotEmpty ? plankScores.first : null;
+     runScore = runScores.isNotEmpty ? runScores.first : null;
+    }
+    
+    
+    );
+
+    
   }
+  
 }
 
 typedef ValueTransformer<T, V> = V Function(T value);
