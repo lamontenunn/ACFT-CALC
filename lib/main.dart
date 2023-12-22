@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
           Container(
               color: Colors.blue,
               alignment: Alignment.center,
-              child: const Text("Page 1")),
+              child: const Text("Home Page")),
           CalculatorPage(),
           GuidePage(),
           SettingsPage(),
