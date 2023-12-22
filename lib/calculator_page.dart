@@ -44,32 +44,31 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             // Gender Dropdown
-            DropdownButtonFormField<String>(
+            _buildDropdown(
+              label: 'Gender',
               value: _selectedGender,
-              items: ['Male', 'Female'].map((gender) {
-                return DropdownMenuItem(value: gender, child: Text(gender));
-              }).toList(),
-              onChanged: (value) {
+              items: ['Male', 'Female'],
+              icon: Icons.person,
+              onChanged: (String? value) {
                 setState(() {
                   _selectedGender = value!;
                   updateDropdowns(_selectedAge, _selectedGender);
                 });
               },
-              decoration: InputDecoration(
-                labelText: 'Gender',
-                icon: Icon(Icons.person),
-              ),
             ),
 
-            DropdownButtonFormField<String>(
+            _buildDropdown(
+              label: 'Select Age Group',
               value: _selectedAge,
               items: [
                 '17 - 21',
@@ -82,105 +81,117 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 '52 - 56',
                 '57 - 61',
                 'Over 62'
-              ].map((ageGroup) {
-                return DropdownMenuItem(value: ageGroup, child: Text(ageGroup));
-              }).toList(),
-              onChanged: (value) {
+              ],
+              icon: Icons.cake, // Change icon to something more relevant
+              onChanged: (String? value) {
                 setState(() {
                   _selectedAge = value!;
                   updateDropdowns(_selectedAge, _selectedGender);
                 });
               },
-
-              decoration: InputDecoration(
-                labelText: 'Select Age Group',
-                labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                hintText: 'Choose your age group',
-                icon: Image.asset('assets/icons/age.png',
-                    width: 24,
-                    height: 24,
-                    color: Colors.green[800]), // Army green color for the icon
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              ),
-              dropdownColor: Colors.white,
-              iconEnabledColor:
-                  Colors.green[800], // Army green color for the dropdown icon
             ),
 
-            SizedBox(height: 20), // Spacing
+            SizedBox(height: 30), // Increased spacing
 
-            // Add this new section header for Event Scores
-            Center(
-              child: const Text(
-                'Enter Scores',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
+            _buildSectionHeader('Enter Scores'),
 
-            SizedBox(height: 20), // Add some spacing
+            SizedBox(height: 20),
 
-            GridView.builder(
-              shrinkWrap: true, // Prevents infinite height issue
-              physics:
-                  const NeverScrollableScrollPhysics(), // Disables scrolling within the GridView
-              itemCount: 6, // Total number of dropdowns
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // Two columns
-                crossAxisSpacing: 5, // Horizontal spacing
-                mainAxisSpacing: 5, // Vertical spacing
-              ),
-              itemBuilder: (context, index) {
-                switch (index) {
-                  case 0:
-                    return _buildEventDropdown(
-                        'deadlift', deadliftScores, deadliftScore);
-                  case 1:
-                    return _buildEventDropdown(
-                        'spt', sptScores, powerThrowScore);
-                  case 2: // Push-up
-                    return _buildEventDropdown(
-                        'pushup', pushUpScores, pushUpScore);
-                  case 3: // Sprint-Drag-Carry
-                    return _buildEventDropdown('sdc', sdcScores, sdcScore);
-                  case 4: // Plank
-                    return _buildEventDropdown(
-                        'plank', plankScores, plankScore);
-                  case 5: // 2-mile run
-                    return _buildEventDropdown('run', runScores, runScore);
-                  default:
-                    return Container();
-                }
-              },
-            ),
+            _buildEventScoresGrid(),
 
-            SizedBox(height: 20), // Spacing
-            // Calculate Button
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  calculateTotalScore();
-                });
-              },
-              child: Text('Calculate'),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[800]), // Army green color
-            ),
+            SizedBox(height: 30),
+
+            _buildCalculateButton(theme),
+
             if (_totalScore != null)
-              Text(
-                'Total Score: $_totalScore',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  'Total Score: $_totalScore',
+                  style: theme.textTheme.titleLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdown(
+      {required String label,
+      String? value,
+      required List<String> items,
+      required IconData icon,
+      required ValueChanged<String?> onChanged}) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      items: items.map((item) {
+        return DropdownMenuItem(value: item, child: Text(item));
+      }).toList(),
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        icon: Icon(icon),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Center(
+      child: Text(
+        title,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      ),
+    );
+  }
+
+Widget _buildEventScoresGrid() {
+  return GridView.builder(
+    shrinkWrap: true, // Prevents infinite height issue
+    physics: const NeverScrollableScrollPhysics(), // Disables scrolling within the GridView
+    itemCount: 6, // Total number of dropdowns
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3, // Two columns
+      crossAxisSpacing: 5, // Horizontal spacing
+      mainAxisSpacing: 5, // Vertical spacing
+    ),
+    itemBuilder: (context, index) {
+      switch (index) {
+        case 0:
+          return _buildEventDropdown('deadlift', deadliftScores, deadliftScore);
+        case 1:
+          return _buildEventDropdown('spt', sptScores, powerThrowScore);
+        case 2: // Push-up
+          return _buildEventDropdown('pushup', pushUpScores, pushUpScore);
+        case 3: // Sprint-Drag-Carry
+          return _buildEventDropdown('sdc', sdcScores, sdcScore);
+        case 4: // Plank
+          return _buildEventDropdown('plank', plankScores, plankScore);
+        case 5: // 2-mile run
+          return _buildEventDropdown('run', runScores, runScore);
+        default:
+          return Container();
+      }
+    },
+  );
+}
+
+
+  Widget _buildCalculateButton(ThemeData theme) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          calculateTotalScore();
+        });
+      },
+      child: const Text('Calculate'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: theme.primaryColor,
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        textStyle: theme.textTheme.labelLarge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );
