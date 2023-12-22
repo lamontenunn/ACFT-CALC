@@ -1,6 +1,6 @@
+import 'package:acft_app/GuidePages/ScoreEntry.dart';
 import 'package:acft_app/acft_calculator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For input formatters
 
 class CalculatorPage extends StatefulWidget {
   @override
@@ -8,19 +8,39 @@ class CalculatorPage extends StatefulWidget {
 }
 
 class _CalculatorPageState extends State<CalculatorPage> {
-  // Dropdown controllers for age, gender, etc.
-  String? _selectedGender;
-  String? _selectedAge;
-  double _deadliftScore = 80.00;
-  double _powerThrowScore = 4.0;
-  double _pushUpScore = 4.0;
-  double _plankScore = 60.0; // In seconds, e.g., 1:00
-  double _sprintDragCarryScore = 87.0; // or another value between 87 and 208
-  double _twoMileRunScore = 802.0;
-  int? _totalScore;
-
-  // or another value between 802 and 1440
   AcftCalculator acftCalculator = AcftCalculator();
+  String _selectedGender = "Male";
+  String _selectedAge = "17 - 21";
+  int? _totalScore = 0;
+  List<String?> deadliftScores = [];
+  List<String?> sptScores = [];
+  List<String?> pushUpScores = [];
+  List<String?> sdcScores = [];
+  List<String?> plankScores = [];
+  List<String?> runScores = [];
+  String? deadliftScore;
+  String? powerThrowScore;
+  String? pushUpScore;
+  String? sdcScore;
+  String? plankScore;
+  String? runScore;
+
+  ScoreEntry scoreEntry = ScoreEntry();
+
+  @override
+  void initState() {
+    super.initState();
+    scoreEntry.convertAllData();
+    updateDropdowns(_selectedAge, _selectedGender);
+
+    String? deadliftScore =
+        deadliftScores.isNotEmpty ? deadliftScores.first : null;
+    String? powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
+    String? pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
+    String? sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
+    String? plankScore = plankScores.isNotEmpty ? plankScores.first : null;
+    String? runScore = runScores.isNotEmpty ? runScores.first : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +59,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
               }).toList(),
               onChanged: (value) {
                 setState(() {
-                  _selectedGender = value;
+                  _selectedGender = value!;
+                  updateDropdowns(_selectedAge, _selectedGender);
                 });
               },
               decoration: InputDecoration(
@@ -66,9 +87,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
               }).toList(),
               onChanged: (value) {
                 setState(() {
-                  _selectedAge = value;
+                  _selectedAge = value!;
+                  updateDropdowns(_selectedAge, _selectedGender);
                 });
               },
+
               decoration: InputDecoration(
                 labelText: 'Select Age Group',
                 labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -91,14 +114,17 @@ class _CalculatorPageState extends State<CalculatorPage> {
             SizedBox(height: 20), // Spacing
 
             // Add this new section header for Event Scores
-           const Text(
-              'Event Scores',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            Center(
+              child: const Text(
+                'Enter Scores',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
-            SizedBox(height: 10), // Add some spacing
+
+            SizedBox(height: 20), // Add some spacing
 
             GridView.builder(
               shrinkWrap: true, // Prevents infinite height issue
@@ -108,28 +134,26 @@ class _CalculatorPageState extends State<CalculatorPage> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3, // Two columns
                 crossAxisSpacing: 5, // Horizontal spacing
-                mainAxisSpacing: 1, // Vertical spacing
+                mainAxisSpacing: 5, // Vertical spacing
               ),
               itemBuilder: (context, index) {
                 switch (index) {
                   case 0:
                     return _buildEventDropdown(
-                        'Deadlift', _deadliftScore, 80, 340);
+                        'deadlift', deadliftScores, deadliftScore);
                   case 1:
                     return _buildEventDropdown(
-                        'SPT', _powerThrowScore, 4.0, 12.6);
-                  case 2:
+                        'spt', sptScores, powerThrowScore);
+                  case 2: // Push-up
                     return _buildEventDropdown(
-                        'HRP', _pushUpScore, 4, 57);
-                  case 3:
+                        'pushup', pushUpScores, pushUpScore);
+                  case 3: // Sprint-Drag-Carry
+                    return _buildEventDropdown('sdc', sdcScores, sdcScore);
+                  case 4: // Plank
                     return _buildEventDropdown(
-                        'SDC', _sprintDragCarryScore, 87, 208);
-                  case 4:
-                    return _buildEventDropdown('Plank', _plankScore, 60,
-                        220); // Adjust min/max values as needed
-                  case 5:
-                    return _buildEventDropdown('2 Mile Run', _twoMileRunScore,
-                        802, 1440); // Adjust min/max values as needed
+                        'plank', plankScores, plankScore);
+                  case 5: // 2-mile run
+                    return _buildEventDropdown('run', runScores, runScore);
                   default:
                     return Container();
                 }
@@ -139,17 +163,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
             SizedBox(height: 20), // Spacing
             // Calculate Button
             ElevatedButton(
-              onPressed: () async {
-                int totalScore = await acftCalculator.calculateTotalScore(
-                  selectedGender: _selectedGender,
-                  selectedAge: _selectedAge?.replaceAll(' ', ''),
-                  deadliftScore: _deadliftScore,
-                  pushUpScore: _pushUpScore,
-                  SDCScore: _sprintDragCarryScore,
-                  SPTScore: _powerThrowScore,
-                );
+              onPressed: () {
                 setState(() {
-                  _totalScore = totalScore;
+                  calculateTotalScore();
                 });
               },
               child: Text('Calculate'),
@@ -170,114 +186,116 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  // Helper method to build event input field
-  Widget _buildEventField(
-      String label, TextEditingController controller, dynamic icon) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: 'Enter result',
-        icon: icon is IconData
-            ? Icon(icon)
-            : Image.asset(icon,
-                width: 24, height: 24), // Using custom PNG icons
-      ),
+  Widget _buildEventDropdown(
+      String label, List<String?> options, String? selectedValue) {
+    // Filter out null values or convert them to a default string (e.g., '')
+    List<String> nonNullOptions = options
+        .where((option) => option != null)
+        .map((option) => option ?? '')
+        .toList();
+
+    return DropdownButton<String>(
+      value: selectedValue, // Use the state variable here
+      onChanged: (newValue) {
+        setState(() {
+          switch (label) {
+            case 'deadlift':
+              deadliftScore = newValue!;
+              break;
+            case 'spt':
+              powerThrowScore = newValue!;
+              break;
+            case 'pushup':
+              pushUpScore = newValue!;
+              break;
+            case 'sdc':
+              sdcScore = newValue!;
+              break;
+            case 'plank':
+              plankScore = newValue!;
+              break;
+            case 'run':
+              runScore = newValue!;
+              break;
+          }
+        });
+      },
+      items: nonNullOptions.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildEventSlider(String label, double value, double min, double max,
-      ValueChanged<double> onChanged,
-      {ValueTransformer<double, String>? formatValue, bool isDecimal = false}) {
-    // Added isDecimal parameter
-    double sliderValue = isDecimal ? value * 10 : value;
-    double sliderMin = isDecimal ? min * 10 : min;
-    double sliderMax = isDecimal ? max * 10 : max;
+  void updateDropdowns(String age, String gender) {
+    int baseIndex = scoreEntry.ageGroupToColumnIndex[age]!;
+    if (gender == 'Female') {
+      baseIndex++; // Increment index for female
+    }
+    //print(
+    // "Sample Deadlift Data: ${scoreEntry.deadliftArr.map((row) => row[baseIndex]).toList()}");
+    setState(() {
+      deadliftScores = scoreEntry.deadliftArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      sptScores = scoreEntry.throwArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      pushUpScores = scoreEntry.pushUpArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      sdcScores = scoreEntry.sdcArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      plankScores = scoreEntry.plankArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
+      runScores = scoreEntry.runArr
+          .map((row) => row[baseIndex])
+          .where((value) => value != null)
+          .toList();
 
-    // Explicitly set the divisions
-    int? sliderDivisions = (sliderMax - sliderMin).toInt();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-        Slider(
-          value: sliderValue,
-          min: sliderMin,
-          max: sliderMax,
-          divisions: sliderDivisions, // set divisions here
-          label: isDecimal
-              ? ((sliderValue).round() / 10.0).toStringAsFixed(1)
-              : sliderValue.round().toString(),
-          onChanged: (double newValue) {
-            setState(() {
-              onChanged(isDecimal ? newValue / 10 : newValue);
-            });
-          },
-          activeColor: Colors.green[800], // Army green color
-        ),
-        Text(formatValue != null
-            ? formatValue(value)
-            : 'Score: ${value.round()}'),
-        SizedBox(height: 10), // Spacing between sliders
-      ],
-    );
+      deadliftScore = deadliftScores.isNotEmpty ? deadliftScores.first : null;
+      powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
+      pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
+      sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
+      plankScore = plankScores.isNotEmpty ? plankScores.first : null;
+      runScore = runScores.isNotEmpty ? runScores.first : null;
+    });
   }
 
-  Widget _buildEventDropdown(String label, double value, double min, double max,
-      {int step = 1}) {
-    // Create a list of dropdown menu items
-    List<DropdownMenuItem<double>> items = [];
-    for (double i = min; i <= max; i += step) {
-      items.add(DropdownMenuItem(
-        value: i,
-        child: Text(i.toString()),
-      ));
+  void calculateTotalScore() {
+    int baseIndex = scoreEntry.ageGroupToColumnIndex[_selectedAge]!;
+    if (_selectedGender == 'Female') {
+      baseIndex++; // Increment index for female
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-        DropdownButtonFormField<double>(
-          value: value,
-          items: items,
-          onChanged: (newValue) {
-            setState(() {
-              // Update the corresponding state variable
-              switch (label) {
-                case 'Deadlift':
-                  _deadliftScore = newValue ?? min;
-                  break;
-                case 'Standing Power Throw':
-                  _powerThrowScore = newValue ?? min;
-                  break;
-                case 'Hand Release Push-Up':
-                  _pushUpScore = newValue ?? min;
-                  break;
-                case 'Sprint Drag Carry':
-                  _sprintDragCarryScore = newValue ?? min;
-                  break;
-                case 'Plank':
-                  _plankScore = newValue ?? min;
-                  break;
-                case '2 Mile Run':
-                  _twoMileRunScore = newValue ?? min;
-                  break;
-                default:
-                  break;
-              }
-            });
-          },
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-        ),
-        SizedBox(height: 10), // Spacing between dropdowns
-      ],
-    );
+    int deadliftScoreValue = scoreEntry.findEventScore(
+        scoreEntry.deadliftArr, deadliftScore, baseIndex);
+    int plankScoreValue =
+        scoreEntry.findEventScore(scoreEntry.plankArr, plankScore, baseIndex);
+    int pushUpScoreValue =
+        scoreEntry.findEventScore(scoreEntry.pushUpArr, pushUpScore, baseIndex);
+    int runScoreValue =
+        scoreEntry.findEventScore(scoreEntry.runArr, runScore, baseIndex);
+    int sdcScoreValue =
+        scoreEntry.findEventScore(scoreEntry.sdcArr, sdcScore, baseIndex);
+    int throwScoreValue = scoreEntry.findEventScore(
+        scoreEntry.throwArr, powerThrowScore, baseIndex);
+
+    _totalScore = deadliftScoreValue +
+        plankScoreValue +
+        pushUpScoreValue +
+        runScoreValue +
+        sdcScoreValue +
+        throwScoreValue;
   }
 }
 

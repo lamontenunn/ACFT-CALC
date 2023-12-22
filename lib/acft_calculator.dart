@@ -1,96 +1,99 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async' show Future;
+import 'package:flutter/services.dart' show rootBundle;
 
 class AcftCalculator {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   Future<int> calculateTotalScore({
-    required String? selectedGender,
-    required String? selectedAge,
+    required String selectedGender,
+    required String selectedAge,
     required double deadliftScore,
-    required double pushUpScore,
-    required double SDCScore,
     required double SPTScore,
+    required double pushUpScore,
+    required double plankScore,
+    required double SDCScore,
+    required double twoMileScore,
   }) async {
-    // Ensure the document IDs are correctly formatted based on the selected gender and age group
-    String docIdMDL = '$selectedGender\_$selectedAge\_MDL';
-    String docIdHRP = '$selectedGender\_$selectedAge\_HRP';
-    String docIdSDC = '$selectedGender\_$selectedAge\_SDC';
-    String docIdSPT = '$selectedGender\_$selectedAge\_SPT';
-    //grabs etch the documents from Firestore
-    DocumentSnapshot docMDL =
-        await _firestore.collection('ACFT_Scores').doc(docIdMDL).get();
-    DocumentSnapshot docHRP =
-        await _firestore.collection('ACFT_Scores').doc(docIdHRP).get();
-    DocumentSnapshot docSDC =
-        await _firestore.collection('ACFT_Scores').doc(docIdSDC).get();
-    DocumentSnapshot docSPT =
-        await _firestore.collection('ACFT_Scores').doc(docIdSPT).get();
+    int total = 0;
 
-    // convert the points  map ----> a Map<String, int>
-    Map<String, int> pointsMDL = Map<String, int>.from(docMDL['Points']);
-    Map<String, int> pointsHRP = Map<String, int>.from(docHRP['Points']);
-    Map<String, int> pointsSDC = Map<String, int>.from(docSDC['Points']);
-    Map<String, int> pointsSPT = Map<String, int>.from(docSPT['Points']);
+    total += await getScoreFromTextFile('deadlift.txt', selectedAge, selectedGender, deadliftScore);
+    total += await getScoreFromTextFile('throw.txt', selectedAge, selectedGender, SPTScore);
+    total += await getScoreFromTextFile('pushup.txt', selectedAge, selectedGender, pushUpScore);
+    total += await getScoreFromTextFile('plank.txt', selectedAge, selectedGender, plankScore);
+    total += await getScoreFromTextFile('sdc.txt', selectedAge, selectedGender, SDCScore);
+    total += await getScoreFromTextFile('run.txt', selectedAge, selectedGender, twoMileScore);
+    
+    // Repeat for other events
+    // ...
 
-    String secondsToFormattedTime(double seconds) {
-      Duration duration = Duration(seconds: seconds.toInt());
-      String twoDigits(int n) => n.toString().padLeft(2, "0");
-      String twoDigitMinutes = twoDigits(duration.inMinutes);
-      String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-      return "$twoDigitMinutes:$twoDigitSeconds:00";
+    return total;
+  }
+
+  Future<int> getScoreFromTextFile(String fileName, String age, String gender, double eventScore) async {
+    String data = await rootBundle.loadString('assets/textfiles/$fileName');
+    List<String> lines = data.split('\n');
+
+    // Parse the file similar to your JavaScript logic
+    List<int> ageColumns = getAgeColumns(age, lines[0]);
+    int genderColumn = getGenderColumn(gender, lines[1], ageColumns);
+    int score = parseScore(lines, genderColumn, eventScore);
+
+    return score;
+  }
+
+List<int> getAgeColumns(String age, String firstLine) {
+  List<String> ages = firstLine.split(' ');
+  List<int> ageRange = age.split('-').map(int.parse).toList();
+  List<int> columns = [];
+
+  for (int i = 0; i < ages.length; i++) {
+    if (ages[i].toLowerCase() != 'points') {
+      List<int> itemRange = ages[i].split('-').map(int.parse).toList();
+      if (itemRange[0] <= ageRange[1] && itemRange[1] >= ageRange[0]) {
+        columns.add(i);
+      }
     }
-    // Function to find the nearest lower or equal score in the points map
-int findNearestLowerScore(Map<String, int> pointsMap, String score) {
-  print("Received score: $score");
-  print("Available pointsMap: $pointsMap");
-
-  // Check for an exact match first
-  if (pointsMap.containsKey(score)) {
-    print("Exact score found: $score  : $pointsMap[score]");
-    return pointsMap[score]!;
   }
 
-  // Find the nearest lower score if no exact match exists
-  var sortedKeys = pointsMap.keys.toList()
-    ..sort((a, b) => a.compareTo(b)); // Sort the keys in ascending order
-  var filteredKeys = sortedKeys.where((e) => e.compareTo(score) <= 0);
-
-  if (filteredKeys.isEmpty) {
-    print("No matching score found");
-    return 0; // Or handle this case differently
-  }
-  
-  var maxAvailableScore = filteredKeys.reduce((a, b) => a.compareTo(b) > 0 ? a : b);
-  print("Nearest lower score: $maxAvailableScore");
-  return pointsMap[maxAvailableScore] ?? 0;
+  return columns;
 }
 
 
-   // Convert SDC score to the 'minutes:seconds:00' format
-  String formattedSDCScore = secondsToFormattedTime(SDCScore);
-  print("The converted SDC score is: $formattedSDCScore");
+int getGenderColumn(String gender, String secondLine, List<int> ageColumns) {
+  List<String> genders = secondLine.split(' ');
 
-String formatSPTScore(double score) {
-  if (score == score.toInt().toDouble()) {
-    return score.toInt().toString();
+  try {
+    return ageColumns.firstWhere((column) => genders[column] == gender, orElse: () => -1);
+  } catch (e) {
+    // Handle the exception or return a default value
+    return -1; // -1 indicates that no matching column was found
   }
-  return score.toStringAsFixed(1);
 }
 
-  // Convert all double scores to String for querying the database
-  String strDeadliftScore = deadliftScore.toString();
-  String strPushUpScore = pushUpScore.toString();
-  String strSPTScore = formatSPTScore(SPTScore);
 
+int parseScore(List<String> lines, int genderColumn, double eventScore) {
+  int lastKnownScore = 0; // Initialize to the lowest score or a sensible default
 
-  // Find the points for each event using the utility function
-  int sdcPoints = findNearestLowerScore(pointsSDC, formattedSDCScore);
-  int mdlPoints = findNearestLowerScore(pointsMDL, strDeadliftScore);
-  int hrpPoints = findNearestLowerScore(pointsHRP, strPushUpScore);
-  int sptPoints = findNearestLowerScore(pointsSPT, strSPTScore);
-    // Calculate the total score
-    int totalScore = mdlPoints + hrpPoints + sdcPoints + sptPoints;
+  for (int i = 1; i < lines.length; i++) {
+    List<String> row = lines[i].split(' ');
 
-    return totalScore;
+    String scoreStr = row[0];
+    String performanceStr = row[genderColumn];
+
+    if (performanceStr != '---') {
+      double performance = double.tryParse(performanceStr) ?? 0;
+
+      if (eventScore >= performance) {
+        // If the score for this row is not empty, use it
+        int currentScore = int.tryParse(scoreStr) ?? lastKnownScore;
+        return currentScore;
+      }
+    } else {
+      // Update the last known score even if the current row's score is empty
+      lastKnownScore = int.tryParse(scoreStr) ?? lastKnownScore;
+    }
   }
+
+  // If no matching performance is found, return the last known score or a default value
+  return lastKnownScore;
+}
+
 }
