@@ -511,16 +511,15 @@ class ScoreEntry {
 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1
 0 4.0 2.6 4.2 2.7 4.3 2.8 4.4 2.8 4.4 2.8 4.3 2.5 4.1 2.3 4.0 2.3 4.0 2.3 3.7 2.3 0""";
 
- // 2D ARRAYS for each event
-List<List<String?>> deadliftArr = [];
-List<List<String?>> plankArr = [];
-List<List<String?>> pushUpArr = [];
-List<List<String?>> runArr = [];
-List<List<String?>> sdcArr = [];
-List<List<String?>> throwArr = [];
+  // 2D ARRAYS for each event
+  List<List<String?>> deadliftArr = [];
+  List<List<String?>> plankArr = [];
+  List<List<String?>> pushUpArr = [];
+  List<List<String?>> runArr = [];
+  List<List<String?>> sdcArr = [];
+  List<List<String?>> throwArr = [];
 
-
-List<List<String?>> convertTo2DArray(String rawData) {
+  List<List<String?>> convertTo2DArray(String rawData) {
     List<List<String?>> result = [];
     List<String> lines = rawData.trim().split('\n');
 
@@ -531,8 +530,7 @@ List<List<String?>> convertTo2DArray(String rawData) {
     }
 
     return result;
-}
-
+  }
 
   void convertAllData() {
     deadliftArr = convertTo2DArray(deadLiftRawData);
@@ -555,4 +553,17 @@ List<List<String?>> convertTo2DArray(String rawData) {
     '57 - 61': 17,
     'Over 62': 19,
   };
+
+ int findEventScore(List<List<String?>> eventArray, String? enteredScore, int columnIndex) {
+  if (enteredScore == null) return 0;
+
+  for (var row in eventArray) {
+    if (row[columnIndex] == enteredScore) {
+      // Assuming the score is an integer and at index 0 of the row
+      return int.tryParse(row[0] ?? '0') ?? 0;
+    }
+  }
+  return 0; // Return 0 if no matching score is found
+}
+
 }

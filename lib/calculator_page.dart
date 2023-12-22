@@ -11,7 +11,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   AcftCalculator acftCalculator = AcftCalculator();
   String _selectedGender = "Male";
   String _selectedAge = "17 - 21";
-  double? _totalScore = 0;
+  int? _totalScore = 0;
   List<String?> deadliftScores = [];
   List<String?> sptScores = [];
   List<String?> pushUpScores = [];
@@ -32,17 +32,14 @@ class _CalculatorPageState extends State<CalculatorPage> {
     super.initState();
     scoreEntry.convertAllData();
     updateDropdowns(_selectedAge, _selectedGender);
-  
-    
-    
-    String? deadliftScore = deadliftScores.isNotEmpty ? deadliftScores.first : null;
+
+    String? deadliftScore =
+        deadliftScores.isNotEmpty ? deadliftScores.first : null;
     String? powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
     String? pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
     String? sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
     String? plankScore = plankScores.isNotEmpty ? plankScores.first : null;
     String? runScore = runScores.isNotEmpty ? runScores.first : null;
-    
-
   }
 
   @override
@@ -143,15 +140,18 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 switch (index) {
                   case 0:
                     return _buildEventDropdown(
-                      'deadlift', deadliftScores, deadliftScore);
+                        'deadlift', deadliftScores, deadliftScore);
                   case 1:
-                    return _buildEventDropdown('spt', sptScores, powerThrowScore);
+                    return _buildEventDropdown(
+                        'spt', sptScores, powerThrowScore);
                   case 2: // Push-up
-                    return _buildEventDropdown('pushup', pushUpScores, pushUpScore);
+                    return _buildEventDropdown(
+                        'pushup', pushUpScores, pushUpScore);
                   case 3: // Sprint-Drag-Carry
                     return _buildEventDropdown('sdc', sdcScores, sdcScore);
                   case 4: // Plank
-                    return _buildEventDropdown('plank', plankScores, plankScore);
+                    return _buildEventDropdown(
+                        'plank', plankScores, plankScore);
                   case 5: // 2-mile run
                     return _buildEventDropdown('run', runScores, runScore);
                   default:
@@ -165,8 +165,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  // Assuming each score variable holds the score for the respective event
-                  _totalScore = 0;
+                  calculateTotalScore();
                 });
               },
               child: Text('Calculate'),
@@ -187,39 +186,39 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  Widget _buildEventDropdown(String label, List<String?> options, String? selectedValue) {
-        // Filter out null values or convert them to a default string (e.g., '')
+  Widget _buildEventDropdown(
+      String label, List<String?> options, String? selectedValue) {
+    // Filter out null values or convert them to a default string (e.g., '')
     List<String> nonNullOptions = options
         .where((option) => option != null)
         .map((option) => option ?? '')
         .toList();
 
-     return DropdownButton<String>(
-    value: selectedValue, // Use the state variable here
-    onChanged: (newValue) {
-      setState(() {
-        switch (label) {
-          case 'deadlift':
-            deadliftScore = newValue! ;
-            break;
-          case 'spt':
-            powerThrowScore = newValue!;
-            break;
-          case 'pushup':
-            pushUpScore = newValue!;
-            break;
-          case 'sdc':
-            sdcScore = newValue!;
-            break;
-          case 'plank':
-            plankScore = newValue!;
-            break;
-          case 'run':
-            runScore = newValue!;
-            break;
-          
-        }
-      });
+    return DropdownButton<String>(
+      value: selectedValue, // Use the state variable here
+      onChanged: (newValue) {
+        setState(() {
+          switch (label) {
+            case 'deadlift':
+              deadliftScore = newValue!;
+              break;
+            case 'spt':
+              powerThrowScore = newValue!;
+              break;
+            case 'pushup':
+              pushUpScore = newValue!;
+              break;
+            case 'sdc':
+              sdcScore = newValue!;
+              break;
+            case 'plank':
+              plankScore = newValue!;
+              break;
+            case 'run':
+              runScore = newValue!;
+              break;
+          }
+        });
       },
       items: nonNullOptions.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
@@ -263,20 +262,41 @@ class _CalculatorPageState extends State<CalculatorPage> {
           .where((value) => value != null)
           .toList();
 
-     deadliftScore = deadliftScores.isNotEmpty ? deadliftScores.first : null;
-     powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
-     pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
-     sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
-     plankScore = plankScores.isNotEmpty ? plankScores.first : null;
-     runScore = runScores.isNotEmpty ? runScores.first : null;
-    }
-    
-    
-    );
-
-    
+      deadliftScore = deadliftScores.isNotEmpty ? deadliftScores.first : null;
+      powerThrowScore = sptScores.isNotEmpty ? sptScores.first : null;
+      pushUpScore = pushUpScores.isNotEmpty ? pushUpScores.first : null;
+      sdcScore = sdcScores.isNotEmpty ? sdcScores.first : null;
+      plankScore = plankScores.isNotEmpty ? plankScores.first : null;
+      runScore = runScores.isNotEmpty ? runScores.first : null;
+    });
   }
-  
+
+  void calculateTotalScore() {
+    int baseIndex = scoreEntry.ageGroupToColumnIndex[_selectedAge]!;
+    if (_selectedGender == 'Female') {
+      baseIndex++; // Increment index for female
+    }
+
+    int deadliftScoreValue = scoreEntry.findEventScore(
+        scoreEntry.deadliftArr, deadliftScore, baseIndex);
+    int plankScoreValue =
+        scoreEntry.findEventScore(scoreEntry.plankArr, plankScore, baseIndex);
+    int pushUpScoreValue =
+        scoreEntry.findEventScore(scoreEntry.pushUpArr, pushUpScore, baseIndex);
+    int runScoreValue =
+        scoreEntry.findEventScore(scoreEntry.runArr, runScore, baseIndex);
+    int sdcScoreValue =
+        scoreEntry.findEventScore(scoreEntry.sdcArr, sdcScore, baseIndex);
+    int throwScoreValue = scoreEntry.findEventScore(
+        scoreEntry.throwArr, powerThrowScore, baseIndex);
+
+    _totalScore = deadliftScoreValue +
+        plankScoreValue +
+        pushUpScoreValue +
+        runScoreValue +
+        sdcScoreValue +
+        throwScoreValue;
+  }
 }
 
 typedef ValueTransformer<T, V> = V Function(T value);
