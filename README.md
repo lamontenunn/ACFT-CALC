@@ -22,3 +22,7 @@ Ideal for:**
 
 Soldiers preparing for or taking the ACFT.
 ACFT graders, OICs, and NCOICs for monitoring and scoring.
+
+
+
+![Uploading Simulator Screenshot - iPhone 15 Pro - 2023-12-23 at 22.32.26.png…]()
