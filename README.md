@@ -25,4 +25,5 @@ ACFT graders, OICs, and NCOICs for monitoring and scoring.
 
 
 
-![Uploading Simulator Screenshot - iPhone 15 Pro - 2023-12-23 at 22.32.26.png…]()
+
+![Simulator Screenshot - iPhone 15 Pro - 2023-12-23 at 22 32 26](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/bba0b696-5b47-4578-be4b-f2648b086857)
