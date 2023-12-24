@@ -25,6 +25,7 @@ class AcftApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(primarySwatch: Colors.green),
       title: "ACFT APP",
       home: const HomePage(title: "ACFT HomePage!"),
       routes: {

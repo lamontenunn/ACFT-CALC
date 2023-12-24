@@ -1,5 +1,4 @@
 import 'package:acft_app/GuidePages/ScoreEntry.dart';
-import 'package:acft_app/acft_calculator.dart';
 import 'package:flutter/material.dart';
 
 class CalculatorPage extends StatefulWidget {
@@ -8,7 +7,6 @@ class CalculatorPage extends StatefulWidget {
 }
 
 class _CalculatorPageState extends State<CalculatorPage> {
-  AcftCalculator acftCalculator = AcftCalculator();
   String _selectedGender = "Male";
   String _selectedAge = "17 - 21";
   int? _totalScore = 0;
@@ -91,9 +89,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
               },
             ),
 
-            SizedBox(height: 30), // Increased spacing
+            SizedBox(height: 30),
 
-            _buildSectionHeader('Enter Scores'),
 
             SizedBox(height: 20),
 
@@ -104,12 +101,14 @@ class _CalculatorPageState extends State<CalculatorPage> {
             _buildCalculateButton(theme),
 
             if (_totalScore != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Text(
-                  'Total Score: $_totalScore',
-                  style: theme.textTheme.titleLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    'Total Score: $_totalScore',
+                    style: theme.textTheme.titleLarge!
+                        .copyWith(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
           ],
@@ -146,52 +145,55 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-Widget _buildEventScoresGrid() {
-  return GridView.builder(
-    shrinkWrap: true, // Prevents infinite height issue
-    physics: const NeverScrollableScrollPhysics(), // Disables scrolling within the GridView
-    itemCount: 6, // Total number of dropdowns
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 3, // Two columns
-      crossAxisSpacing: 5, // Horizontal spacing
-      mainAxisSpacing: 5, // Vertical spacing
-    ),
-    itemBuilder: (context, index) {
-      switch (index) {
-        case 0:
-          return _buildEventDropdown('deadlift', deadliftScores, deadliftScore);
-        case 1:
-          return _buildEventDropdown('spt', sptScores, powerThrowScore);
-        case 2: // Push-up
-          return _buildEventDropdown('pushup', pushUpScores, pushUpScore);
-        case 3: // Sprint-Drag-Carry
-          return _buildEventDropdown('sdc', sdcScores, sdcScore);
-        case 4: // Plank
-          return _buildEventDropdown('plank', plankScores, plankScore);
-        case 5: // 2-mile run
-          return _buildEventDropdown('run', runScores, runScore);
-        default:
-          return Container();
-      }
-    },
-  );
-}
-
+  Widget _buildEventScoresGrid() {
+    return GridView.builder(
+      shrinkWrap: true, // Prevents infinite height issue
+      physics:
+          const NeverScrollableScrollPhysics(), // Disables scrolling within the GridView
+      itemCount: 6, // Total number of dropdowns
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3, // Two columns
+        crossAxisSpacing: 5, // Horizontal spacing
+        mainAxisSpacing: 5, // Vertical spacing
+      ),
+      itemBuilder: (context, index) {
+        switch (index) {
+          case 0:
+            return _buildEventDropdown(
+                'deadlift', deadliftScores, deadliftScore);
+          case 1:
+            return _buildEventDropdown('spt', sptScores, powerThrowScore);
+          case 2: // Push-up
+            return _buildEventDropdown('pushup', pushUpScores, pushUpScore);
+          case 3: // Sprint-Drag-Carry
+            return _buildEventDropdown('sdc', sdcScores, sdcScore);
+          case 4: // Plank
+            return _buildEventDropdown('plank', plankScores, plankScore);
+          case 5: // 2-mile run
+            return _buildEventDropdown('run', runScores, runScore);
+          default:
+            return Container();
+        }
+      },
+    );
+  }
 
   Widget _buildCalculateButton(ThemeData theme) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          calculateTotalScore();
-        });
-      },
-      child: const Text('Calculate'),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: theme.primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-        textStyle: theme.textTheme.labelLarge,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+    return Center(
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            calculateTotalScore();
+          });
+        },
+        child: const Text('Calculate'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.primaryColor,
+          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+          textStyle: theme.textTheme.labelLarge,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
       ),
     );
@@ -245,8 +247,6 @@ Widget _buildEventScoresGrid() {
     if (gender == 'Female') {
       baseIndex++; // Increment index for female
     }
-    //print(
-    // "Sample Deadlift Data: ${scoreEntry.deadliftArr.map((row) => row[baseIndex]).toList()}");
     setState(() {
       deadliftScores = scoreEntry.deadliftArr
           .map((row) => row[baseIndex])

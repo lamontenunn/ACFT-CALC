@@ -74,7 +74,7 @@ flutter:
     - assets/textfiles/throw.txt
     - assets/textfiles/run.txt
     - assets/textfiles/pushup.txt
-    - assets/icons/ball.png
+    - assets/icons/
     - assets/icons/deadlift.png
     - assets/icons/plank.png
     - assets/icons/pushup.png
