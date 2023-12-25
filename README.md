@@ -24,12 +24,12 @@ Soldiers preparing for or taking the ACFT.
 ACFT graders, OICs, and NCOICs for monitoring and scoring.
 
 
+![Screenshot 2023-12-25 at 12 01 55 AM](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/3162a8e1-fc2e-421f-a828-1f4044ed5cab)
 
 
-![Simulator Screenshot - iPhone 15 Pro - 2023-12-23 at 22 32 26](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/bba0b696-5b47-4578-be4b-f2648b086857)
+![Screenshot 2023-12-25 at 12 01 42 AM](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/e00e186a-e06b-4205-b0ce-f8961d575c85)
 
-![Simulator Screenshot - iPhone 15 Pro - 2023-12-23 at 22 42 57](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/e1e9dfab-26d4-43cf-ae5e-fe46c63deb61)
 
-![Simulator Screenshot - iPhone 15 Pro - 2023-12-24 at 20 39 34](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/28134767-5bb8-4aba-bb36-0e3f2d16986e)
+![Screenshot 2023-12-25 at 12 01 09 AM](https://github.com/lamontenunn/ACFT-CALC/assets/91636359/872414d3-ca98-4f25-bcf3-34058a76e796)
 
 
