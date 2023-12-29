@@ -43,6 +43,11 @@ dependencies:
   firebase_core: ^2.17.0
   cloud_firestore: ^4.9.3
   http: ^1.1.0
+  video_player: ^2.8.1
+  youtube_player_flutter: ^8.1.2
+  sqflite: any
+  path: any
+  
 
 dev_dependencies:
   flutter_test:

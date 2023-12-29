@@ -1,7 +1,10 @@
-import 'package:acft_app/GuidePages/ScoreEntry.dart';
+import 'package:acft_app/GuidePages/hrp_instructions.dart';
 import 'package:acft_app/GuidePages/lane_layout.dart';
 import 'package:acft_app/GuidePages/mdl_instructions.dart';
+import 'package:acft_app/GuidePages/plank_instructions.dart';
 import 'package:acft_app/GuidePages/prepdrill_instructions.dart';
+import 'package:acft_app/GuidePages/run_instructions.dart';
+import 'package:acft_app/GuidePages/sdc_instructions.dart';
 import 'package:acft_app/GuidePages/spt_instructions.dart';
 import 'package:acft_app/GuidePages/test_Instructions.dart';
 import 'package:acft_app/calculator_page.dart';
@@ -34,6 +37,11 @@ class AcftApp extends StatelessWidget {
         '/SPT': (context) => SPTInstructions(),
         '/Prep Drill': (context) => PrepDrillInstructions(),
         '/MDL': (context) => MDLInstructions(),
+        'SPT' : (context) => SPTInstructions(),
+        '/SDC' : (context) => SDCInstructions(),
+        '/HRP' : (context) => hrpInstructions(),
+        '/PLK' : (context) => plankInstructions(),
+        '/2MR' : (context) => runInstructions()
       },
     );
   }
@@ -88,10 +96,12 @@ class _HomePageState extends State<HomePage> {
           Container(
               color: Colors.blue,
               alignment: Alignment.center,
-              child: const Text("Page 1")),
+              child: const Text("Home Page")),
           CalculatorPage(),
           GuidePage(),
           SettingsPage(),
         ][currentPage]);
   }
+
+
 }

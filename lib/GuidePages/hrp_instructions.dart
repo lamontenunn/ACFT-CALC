@@ -2,13 +2,16 @@ import 'package:acft_app/GuidePages/spt_instructions.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class MDLInstructions extends StatefulWidget {
+class hrpInstructions extends StatefulWidget {
   @override
-  State<MDLInstructions> createState() => _MDLInstructionsState();
+  State<hrpInstructions> createState() => _hrpInstructionsState();
 }
 
-class _MDLInstructionsState extends State<MDLInstructions> {
+class _hrpInstructionsState extends State<hrpInstructions> {
+  
   late YoutubePlayerController _controller;
+
+  
 
   @override
   void initState() {
@@ -29,14 +32,11 @@ class _MDLInstructionsState extends State<MDLInstructions> {
   }
 
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('MDL Instructions'),
+        title: Text('HRP Instructions'),
         backgroundColor: Colors.amber,
       ),
       body: SingleChildScrollView(
@@ -81,3 +81,8 @@ class _MDLInstructionsState extends State<MDLInstructions> {
     );
   }
 }
+
+
+
+
+

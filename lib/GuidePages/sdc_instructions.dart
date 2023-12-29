@@ -2,12 +2,12 @@ import 'package:acft_app/GuidePages/spt_instructions.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class MDLInstructions extends StatefulWidget {
+class SDCInstructions extends StatefulWidget {
   @override
-  State<MDLInstructions> createState() => _MDLInstructionsState();
+  State<SDCInstructions> createState() => _SDCInstructionsState();
 }
 
-class _MDLInstructionsState extends State<MDLInstructions> {
+class _SDCInstructionsState extends State<SDCInstructions> {
   late YoutubePlayerController _controller;
 
   @override
@@ -36,7 +36,7 @@ class _MDLInstructionsState extends State<MDLInstructions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('MDL Instructions'),
+        title: Text('SDC Instructions'),
         backgroundColor: Colors.amber,
       ),
       body: SingleChildScrollView(
@@ -69,7 +69,7 @@ class _MDLInstructionsState extends State<MDLInstructions> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        SPTInstructions(), // Replace MdlPage with your actual MDL page
+                        SPTInstructions(), // Replace SDCPage with your actual SDC page
                   ),
                 );
               },

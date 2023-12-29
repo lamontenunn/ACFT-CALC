@@ -1,6 +1,7 @@
 import 'package:acft_app/GuidePages/ScoreEntry.dart';
 import 'package:flutter/material.dart';
 
+
 class CalculatorPage extends StatefulWidget {
   @override
   _CalculatorPageState createState() => _CalculatorPageState();
@@ -233,6 +234,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
           }
         });
       },
+
+      
       items: nonNullOptions.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -282,7 +285,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
     });
   }
 
-  void calculateTotalScore() {
+  Future<void> calculateTotalScore() async{
     int baseIndex = scoreEntry.ageGroupToColumnIndex[_selectedAge]!;
     if (_selectedGender == 'Female') {
       baseIndex++; // Increment index for female

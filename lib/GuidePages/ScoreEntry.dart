@@ -1,4 +1,8 @@
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
 class ScoreEntry {
+
   String deadLiftRawData =
       """100 340 210 340 230 340 230 340 230 340 210 340 210 330 190 290 190 250 170 230 170
 99 330 -1 330 220 330 220 330 220 330 200 330 200 320 180 280 180 240 160 220 160
@@ -554,16 +558,18 @@ class ScoreEntry {
     'Over 62': 19,
   };
 
- int findEventScore(List<List<String?>> eventArray, String? enteredScore, int columnIndex) {
-  if (enteredScore == null) return 0;
+  int findEventScore(
+      List<List<String?>> eventArray, String? enteredScore, int columnIndex) {
+    if (enteredScore == null) return 0;
 
-  for (var row in eventArray) {
-    if (row[columnIndex] == enteredScore) {
-      // Assuming the score is an integer and at index 0 of the row
-      return int.tryParse(row[0] ?? '0') ?? 0;
+    for (var row in eventArray) {
+      if (row[columnIndex] == enteredScore) {
+        // Assuming the score is an integer and at index 0 of the row
+        return int.tryParse(row[0] ?? '0') ?? 0;
+      }
     }
+    return 0; // Return 0 if no matching score is found
   }
-  return 0; // Return 0 if no matching score is found
-}
 
+  
 }
